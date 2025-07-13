@@ -1,4 +1,4 @@
-```python
+```python 
 import json
 import logging
 import asyncio 
@@ -11,54 +11,75 @@ from aiogram.filters import Command
 from aiogram import F
 
 API_TOKEN = '7690796647:AAHibbEzg3ky14fCNpJM2-_G7m4F_kSlqKI'
-MANAGER_CHAT_ID = 6438939468  # Замените на ваш ID чата менеджера
+MANAGER_CHAT_ID = 6438939468
 
-bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
+# Инициализация бота с голубым accent color
+bot = Bot(token=API_TOKEN, default=DefaultBotProperties(
+    parse_mode=ParseMode.MARKDOWN,
+    link_preview_options={"show_above_text": True}
+))
 dp = Dispatcher(storage=MemoryStorage())
 
 def get_main_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🛍️ Оформить заказ", web_app=WebAppInfo(url="https://tlpshop.ru/"))],
-            [KeyboardButton(text="📱 Навигация"), KeyboardButton(text="⏰ Режим работы")]
+            [KeyboardButton(text="🛒 Оформить заказ", web_app=WebAppInfo(url="https://tlpshop.ru/"))],
+            [
+                KeyboardButton(text="🔍 Навигация"), 
+                KeyboardButton(text="🕒 Режим работы")
+            ],
+            [KeyboardButton(text="💬 Поддержка")]
         ],
         resize_keyboard=True,
-        input_field_placeholder="Выберите действие"
+        input_field_placeholder="▷ Выберите действие",
+        selective=True
     )
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     username = message.from_user.username or message.from_user.first_name
     await message.answer(
-        f"🌟 *Добро пожаловать в TLP | SHOP, {username}!* 🌟\n\n"
-        "💎 Премиальные товары с быстрой доставкой\n"
-        "🚀 Лучшие цены в вашем районе\n"
-        "🔒 Гарантия качества и конфиденциальности\n\n"
-        "Нажмите кнопку ниже, чтобы начать покупки:",
-        reply_markup=get_main_keyboard()
-    )
-
-@dp.message(F.text == "📱 Навигация")
-async def show_navigation(message: types.Message):
-    await message.answer(
-        "📱 *КОНТАКТЫ TLP | SHOP* 📱\n\n"
-        "🔹 Менеджер: @tlp_shop\n"
-        "🔹 Важная информация: https://t.me/tlpshopmgdn\n"
-        "🔹 Отзывы: https://t.me/+VfwmutOo8R9hZWMy\n\n"
-        "⏳ *Время ответа: до 15 минут*\n"
-        "Мы всегда рады помочь вам с выбором!",
+        f"""☁️ *Добро пожаловать в TLP SHOP* ☁️\n\n"""
+        f"""Привет, {username}! Мы предлагаем:\n"""
+        """• Премиум качество\n"""
+        """• Быструю доставку\n"""
+        """• Конфиденциальность\n\n"""
+        """_Используйте меню ниже для навигации:_""",
         reply_markup=get_main_keyboard(),
         parse_mode=ParseMode.MARKDOWN
     )
 
-@dp.message(F.text == "⏰ Режим работы")
+@dp.message(F.text == "🔍 Навигация")
+async def show_navigation(message: types.Message):
+    await message.answer(
+        """🌐 *Контакты и навигация* 🌐\n\n"""
+        """▸ *Менеджер:* @tlp_manager\n"""
+        """▸ *Канал:* [TLP News](https://t.me/tlpshopmgdn)\n"""
+        """▸ *Отзывы:* [Чат отзывов](https://t.me/+VfwmutOo8R9hZWMy)\n\n"""
+        """⏱ Ответ в течение 15 минут""",
+        reply_markup=get_main_keyboard(),
+        parse_mode=ParseMode.MARKDOWN,
+        disable_web_page_preview=True
+    )
+
+@dp.message(F.text == "🕒 Режим работы")
 async def working_hours(message: types.Message):
     await message.answer(
-        "⏰ *РЕЖИМ РАБОТЫ* ⏰\n\n"
-        "▫️Ежедневно: с 13:00 до 23:00\n\n"
-        "🚚 *Самовывоз уточнять у менеджера*\n"
-        "🚚 *Доставка без выходных*\n"
-        "Мы работаем для вас каждый день!",
+        """⏳ *График работы* ⏳\n\n"""
+        """• *Ежедневно:* 13:00 - 23:00\n\n"""
+        """🚗 Самовывоз по договорённости\n"""
+        """🚀 Доставка - без выходных""",
+        reply_markup=get_main_keyboard(),
+        parse_mode=ParseMode.MARKDOWN
+    )
+
+@dp.message(F.text == "💬 Поддержка")
+async def support(message: types.Message):
+    await message.answer(
+        """📩 *Служба поддержки* 📩\n\n"""
+        """По вопросам и помощи:\n"""
+        """▸ @tlp_support_bot\n\n"""
+        """_Мы всегда рады помочь!_""",
         reply_markup=get_main_keyboard(),
         parse_mode=ParseMode.MARKDOWN
     )
@@ -70,52 +91,49 @@ async def handle_webapp_data(message: types.Message):
         items = data.get('items', [])
 
         if not items:
-            await message.answer("❗ Ваша корзина пуста. Пожалуйста, добавьте товары перед оформлением заказа.")
+            await message.answer("🛒 Ваша корзина пуста", reply_markup=get_main_keyboard())
             return
 
         items_text = "\n".join(
-            f"▫️ {item['name']} | Вкус: *{item.get('flavor', 'не указан')}* | Кол-во: {item['qty']} | Сумма: {item['price'] * item['qty']}₽"
+            f"▸ {item['name']} | {item.get('flavor', '')} | {item['qty']}шт | {item['price'] * item['qty']}₽"
             for item in items
         )
 
-        address = data.get('address', 'Не указан')
-        district = data.get('district', 'Не указан')
-        total = data.get('total', 0)
-        username = message.from_user.username or message.from_user.first_name
+        order_info = {
+            'district': data.get('district', 'Не указан'),
+            'address': data.get('address', 'Не указан'),
+            'total': data.get('total', 0),
+            'username': message.from_user.username or message.from_user.first_name
+        }
 
-        # Сообщение клиенту
+        # Клиенту
         await message.answer(
-            f"✅ *Ваш заказ принят!* ✅\n\n"
-            f"{items_text}\n\n"
-            f"📍 Район: {district}\n"
-            f"🏠 Адрес: {address}\n"
-            f"💰 Итого: *{total} ₽*\n\n"
-            f"Наш менеджер @tlpmanager свяжется с вами для подтверждения заказа.\n"
-            f"Спасибо за выбор TLP | SHOP!",
+            f"""✅ *Заказ принят!*\n\n"""
+            f"""{items_text}\n\n"""
+            f"""📍 *Район:* {order_info['district']}\n"""
+            f"""🏠 *Адрес:* {order_info['address']}\n"""
+            f"""💳 *Сумма:* {order_info['total']}₽\n\n"""
+            f"""Менеджер свяжется с вами в ближайшее время.""",
             reply_markup=get_main_keyboard(),
             parse_mode=ParseMode.MARKDOWN
         )
 
-        # Сообщение менеджеру
+        # Менеджеру
         await bot.send_message(
             chat_id=MANAGER_CHAT_ID,
-            text=(
-                f"🛍️ *НОВЫЙ ЗАКАЗ!* 🛍️\n\n"
-                f"{items_text}\n\n"
-                f"📍 Район: {district}\n"
-                f"🏠 Адрес: {address}\n"
-                f"💰 Сумма: *{total} ₽*\n"
-                f"👤 От: @{username}\n\n"
-                f"Ожидает обработки"
-            ),
+            text=f"""🛒 *Новый заказ!*\n\n"""
+                 f"""{items_text}\n\n"""
+                 f"""📍 {order_info['district']}\n"""
+                 f"""🏠 {order_info['address']}\n"""
+                 f"""👤 @{order_info['username']}\n"""
+                 f"""💵 {order_info['total']}₽""",
             parse_mode=ParseMode.MARKDOWN
         )
 
     except Exception as e:
-        logging.exception("Ошибка при обработке WebAppData")
+        logging.error(f"WebApp error: {e}")
         await message.answer(
-            "⚠ Произошла ошибка при обработке вашего заказа.\n"
-            "Пожалуйста, попробуйте ещё раз или свяжитесь с нами в @tlpsupport",
+            "⚠ Ошибка обработки заказа\nПопробуйте позже",
             reply_markup=get_main_keyboard()
         )
 
