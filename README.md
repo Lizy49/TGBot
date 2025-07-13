@@ -1,4 +1,4 @@
-```python 
+```python
 import json
 import logging
 import asyncio 
@@ -13,10 +13,9 @@ from aiogram import F
 API_TOKEN = '7690796647:AAHibbEzg3ky14fCNpJM2-_G7m4F_kSlqKI'
 MANAGER_CHAT_ID = 6438939468
 
-# Инициализация бота с голубым accent color
+# Инициализация бота с голубым стилем
 bot = Bot(token=API_TOKEN, default=DefaultBotProperties(
-    parse_mode=ParseMode.MARKDOWN,
-    link_preview_options={"show_above_text": True}
+    parse_mode=ParseMode.MARKDOWN
 ))
 dp = Dispatcher(storage=MemoryStorage())
 
@@ -31,8 +30,7 @@ def get_main_keyboard():
             [KeyboardButton(text="💬 Поддержка")]
         ],
         resize_keyboard=True,
-        input_field_placeholder="▷ Выберите действие",
-        selective=True
+        input_field_placeholder="▷ Выберите действие"
     )
 
 @dp.message(Command("start"))
@@ -46,7 +44,7 @@ async def cmd_start(message: types.Message):
         """• Конфиденциальность\n\n"""
         """_Используйте меню ниже для навигации:_""",
         reply_markup=get_main_keyboard(),
-        parse_mode=ParseMode.MARKDOWN
+        disable_web_page_preview=True
     )
 
 @dp.message(F.text == "🔍 Навигация")
@@ -58,7 +56,6 @@ async def show_navigation(message: types.Message):
         """▸ *Отзывы:* [Чат отзывов](https://t.me/+VfwmutOo8R9hZWMy)\n\n"""
         """⏱ Ответ в течение 15 минут""",
         reply_markup=get_main_keyboard(),
-        parse_mode=ParseMode.MARKDOWN,
         disable_web_page_preview=True
     )
 
@@ -69,8 +66,7 @@ async def working_hours(message: types.Message):
         """• *Ежедневно:* 13:00 - 23:00\n\n"""
         """🚗 Самовывоз по договорённости\n"""
         """🚀 Доставка - без выходных""",
-        reply_markup=get_main_keyboard(),
-        parse_mode=ParseMode.MARKDOWN
+        reply_markup=get_main_keyboard()
     )
 
 @dp.message(F.text == "💬 Поддержка")
@@ -81,7 +77,7 @@ async def support(message: types.Message):
         """▸ @tlp_support_bot\n\n"""
         """_Мы всегда рады помочь!_""",
         reply_markup=get_main_keyboard(),
-        parse_mode=ParseMode.MARKDOWN
+        disable_web_page_preview=True
     )
 
 @dp.message(F.web_app_data)
@@ -114,8 +110,7 @@ async def handle_webapp_data(message: types.Message):
             f"""🏠 *Адрес:* {order_info['address']}\n"""
             f"""💳 *Сумма:* {order_info['total']}₽\n\n"""
             f"""Менеджер свяжется с вами в ближайшее время.""",
-            reply_markup=get_main_keyboard(),
-            parse_mode=ParseMode.MARKDOWN
+            reply_markup=get_main_keyboard()
         )
 
         # Менеджеру
@@ -126,8 +121,7 @@ async def handle_webapp_data(message: types.Message):
                  f"""📍 {order_info['district']}\n"""
                  f"""🏠 {order_info['address']}\n"""
                  f"""👤 @{order_info['username']}\n"""
-                 f"""💵 {order_info['total']}₽""",
-            parse_mode=ParseMode.MARKDOWN
+                 f"""💵 {order_info['total']}₽"""
         )
 
     except Exception as e:
