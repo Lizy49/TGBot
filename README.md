@@ -43,12 +43,15 @@ async def cmd_start(message: types.Message):
 
 @dp.message(F.text == "🔍 Навигация")
 async def show_navigation(message: types.Message):
-    await message.answer(
+    navigation_text = (
         "🌐 *Контакты и навигация* 🌐\n\n"
-        "▸ *Менеджер:* @tlp_manager\n"
-        "▸ *Канал:* [TLP News](https://t.me/tlpshopmgdn)\n"
-        "▸ *Отзывы:* [Чат отзывов](https://t.me/+VfwmutOo8R9hZWMy)\n\n"
-        "⏱ Ответ в течение 15 минут",
+        "▸ Менеджер: @tlp_manager\n"
+        "▸ Канал: https://t.me/tlpshopmgdn\n"
+        "▸ Отзывы: https://t.me/+VfwmutOo8R9hZWMy\n\n"
+        "⏱ Ответ в течение 15 минут"
+    )
+    await message.answer(
+        navigation_text,
         reply_markup=get_main_keyboard(),
         disable_web_page_preview=True
     )
@@ -57,7 +60,7 @@ async def show_navigation(message: types.Message):
 async def working_hours(message: types.Message):
     await message.answer(
         "⏳ *График работы* ⏳\n\n"
-        "• *Ежедневно:* 13:00 - 23:00\n\n"
+        "• Ежедневно: 13:00 - 23:00\n\n"
         "🚗 Самовывоз по договорённости\n"
         "🚀 Доставка - без выходных",
         reply_markup=get_main_keyboard()
@@ -100,9 +103,9 @@ async def handle_webapp_data(message: types.Message):
         await message.answer(
             f"✅ *Заказ принят!*\n\n"
             f"{items_text}\n\n"
-            f"📍 *Район:* {order_info['district']}\n"
-            f"🏠 *Адрес:* {order_info['address']}\n"
-            f"💳 *Сумма:* {order_info['total']}₽\n\n"
+            f"📍 Район: {order_info['district']}\n"
+            f"🏠 Адрес: {order_info['address']}\n"
+            f"💳 Сумма: {order_info['total']}₽\n\n"
             f"Менеджер свяжется с вами в ближайшее время.",
             reply_markup=get_main_keyboard()
         )
