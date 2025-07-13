@@ -38,74 +38,6 @@ async def cmd_start(message: types.Message):
     )
 
 @dp.message(F.text == "📱 Навигация")
-async def contacts(message: types.Message):
-    await message.answer(
-        "📱 *КОНТАКТЫ TLP | SHOP* 📱\n\n"
-        "🔹 Менеджер: @tlp_shop\n"
-        "🔹 Важная информация: https://t.me/tlpshopmgdn\n"
-        "🔹 Отзывы: https://t.me/+VfwmutOo8R9hZWMy\n\n"
-        "⏳ *Время ответа: до 15 минут*\n"
-        "Мы всегда рады помочь вам с выбором!",
-        reply_markup=get_main_keyboard()
-    )
-
-@dp.message(F.text == "⏰ Режим работы")
-async def working_hours(message: types.Message):
-    await message.answer(
-        "⏰ *РЕЖИМ РАБОТЫ* ⏰\n\n"
-        "▫️Ежедневно: с 13:00 до 23:00\n\n"
-        "🚚 *Самовывоз уточнять у менеджера*\n"
-        "🚚 *Доставка без выходных*\n"
-        "Мы работаем для вас каждый день!",
-        reply_markup=get_main_keyboard()
-    )
-
-@dp.message(F.web_app_data)
-async def handle_webapp_data(message: types.Message):
-    try:
-        data = json.loads(message.web_app_data.data)
-        items = data.get('items', [])
-
-        if not items:
-            await message.answer("❗ Ваша корзина import json
-import logging
-import asyncio 
-from aiogram import Bot, Dispatcher, types
-from aiogram.enums import ParseMode
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
-from aiogram.client.default import DefaultBotProperties
-from aiogram.filters import Command
-from aiogram import F
-
-API_TOKEN = '7690796647:AAHibbEzg3ky14fCNpJM2-_G7m4F_kSlqKI'
-MANAGER_CHAT_ID = 6438939468  # Замените на ваш ID чата менеджера
-
-bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
-dp = Dispatcher(storage=MemoryStorage())
-
-def get_main_keyboard():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="🛍️ Оформить заказ", web_app=WebAppInfo(url="https://tlpshop.ru/"))],
-            [KeyboardButton(text="📱 Навигация"), KeyboardButton(text="⏰ Режим работы")]
-        ],
-        resize_keyboard=True
-    )
-
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    username = message.from_user.username or message.from_user.first_name
-    await message.answer(
-        f"🌟 *Добро пожаловать в TLP | SHOP, {username}!* 🌟\n\n"
-        "💎 Премиальные товары с быстрой доставкой\n"
-        "🚀 Лучшие цены в вашем районе\n"
-        "🔒 Гарантия качества и конфиденциальности\n\n"
-        "Нажмите кнопку ниже, чтобы начать покупки:",
-        reply_markup=get_main_keyboard()
-    )
-
-@dp.message(F.text == "📱 Навигация")
 async def navigation(message: types.Message):
     await message.answer(
         "📱 *КОНТАКТЫ TLP | SHOP* 📱\n\n"
@@ -187,4 +119,5 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
 ```
