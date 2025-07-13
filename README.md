@@ -22,7 +22,8 @@ def get_main_keyboard():
             [KeyboardButton(text="🛍️ Оформить заказ", web_app=WebAppInfo(url="https://tlpshop.ru/"))],
             [KeyboardButton(text="📱 Навигация"), KeyboardButton(text="⏰ Режим работы")]
         ],
-        resize_keyboard=True
+        resize_keyboard=True,
+        input_field_placeholder="Выберите действие"
     )
 
 @dp.message(Command("start"))
@@ -38,7 +39,7 @@ async def cmd_start(message: types.Message):
     )
 
 @dp.message(F.text == "📱 Навигация")
-async def navigation(message: types.Message):
+async def show_navigation(message: types.Message):
     await message.answer(
         "📱 *КОНТАКТЫ TLP | SHOP* 📱\n\n"
         "🔹 Менеджер: @tlp_shop\n"
@@ -46,7 +47,8 @@ async def navigation(message: types.Message):
         "🔹 Отзывы: https://t.me/+VfwmutOo8R9hZWMy\n\n"
         "⏳ *Время ответа: до 15 минут*\n"
         "Мы всегда рады помочь вам с выбором!",
-        reply_markup=get_main_keyboard()
+        reply_markup=get_main_keyboard(),
+        parse_mode=ParseMode.MARKDOWN
     )
 
 @dp.message(F.text == "⏰ Режим работы")
@@ -57,7 +59,8 @@ async def working_hours(message: types.Message):
         "🚚 *Самовывоз уточнять у менеджера*\n"
         "🚚 *Доставка без выходных*\n"
         "Мы работаем для вас каждый день!",
-        reply_markup=get_main_keyboard()
+        reply_markup=get_main_keyboard(),
+        parse_mode=ParseMode.MARKDOWN
     )
 
 @dp.message(F.web_app_data)
@@ -89,7 +92,8 @@ async def handle_webapp_data(message: types.Message):
             f"💰 Итого: *{total} ₽*\n\n"
             f"Наш менеджер @tlpmanager свяжется с вами для подтверждения заказа.\n"
             f"Спасибо за выбор TLP | SHOP!",
-            reply_markup=get_main_keyboard()
+            reply_markup=get_main_keyboard(),
+            parse_mode=ParseMode.MARKDOWN
         )
 
         # Сообщение менеджеру
@@ -103,7 +107,8 @@ async def handle_webapp_data(message: types.Message):
                 f"💰 Сумма: *{total} ₽*\n"
                 f"👤 От: @{username}\n\n"
                 f"Ожидает обработки"
-            )
+            ),
+            parse_mode=ParseMode.MARKDOWN
         )
 
     except Exception as e:
@@ -119,5 +124,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-
 ```
