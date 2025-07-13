@@ -17,7 +17,7 @@ from aiogram import F
 
 # Настройки
 API_TOKEN = '7690796647:AAHibbEzg3ky14fCNpJM2-_G7m4F_kSlqKI'
-MANAGER_CHAT_ID = 6438939468
+MANAGER_CHAT_ID = 906177509
 WEBAPP_URL = 'https://tlpshop.ru'
 
 # Инициализация бота
@@ -28,7 +28,7 @@ def get_main_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🛍️ Оформить заказ", web_app=WebAppInfo(url=WEBAPP_URL))],
-            [KeyboardButton(text="📱 Контакты"), KeyboardButton(text="⏱ Часы работы")]
+            [KeyboardButton(text="📱 Навигация"), KeyboardButton(text="⏱ Часы работы")]
         ],
         resize_keyboard=True
     )
@@ -42,13 +42,13 @@ async def cmd_start(message: types.Message):
         reply_markup=get_main_keyboard()
     )
 
-@dp.message(F.text == "📱 Контакты")
+@dp.message(F.text == "📱 Навигация")
 async def show_contacts(message: types.Message):
     await message.answer(
         "<b>Наши контакты:</b>\n\n"
-        "👨‍💼 Менеджер: @tlp_manager\n"
-        "📢 Канал: t.me/tlpshop\n"
-        "📝 Отзывы: t.me/tlp_reviews\n\n"
+        "👨‍💼 Менеджер: @tlp_shop\n"
+        "📢 Канал: t.me/tlpshopmgdn\n"
+        "📝 Отзывы: t.me/+VfwmutOo8R9hZWMy\n\n"
         "⏳ Время ответа: до 15 минут",
         reply_markup=get_main_keyboard()
     )
@@ -56,9 +56,10 @@ async def show_contacts(message: types.Message):
 @dp.message(F.text == "⏱ Часы работы")
 async def working_hours(message: types.Message):
     await message.answer(
-        "<b>Режим работы:</b>\n\n"
+        "<b>⏳*График работы*⏳</b>\n\n"
         "🕐 Ежедневно с 13:00 до 23:00\n\n"
-        "🚚 Доставка работает без выходных",
+        "🚚 Доставка работает без выходных\n"
+        "🚗 Самовывоз по договорённости",
         reply_markup=get_main_keyboard()
     )
 
