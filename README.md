@@ -11,7 +11,10 @@ from aiogram.filters import Command
 from aiogram import F
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Конфигурация
@@ -65,7 +68,7 @@ async def working_hours(message: types.Message):
 @dp.message(F.web_app_data)
 async def handle_webapp_data(message: types.Message):
     try:
-        logger.info(f"Получены данные из WebApp: {message.web_app_data.data}")
+        logger.info("Получены данные из WebApp")
         
         # Закрываем клавиатуру
         await message.answer("🔄 Обрабатываем ваш заказ...", reply_markup=ReplyKeyboardRemove())
@@ -73,38 +76,35 @@ async def handle_webapp_data(message: types.Message):
         # Парсим JSON данные
         try:
             data = json.loads(message.web_app_data.data)
-            logger.info(f"Данные заказа: {data}")
+            logger.info(f"Данные заказа: {json.dumps(data, indent=2, ensure_ascii=False)}")
         except json.JSONDecodeError as e:
             logger.error(f"Ошибка парсинга JSON: {e}")
             await message.answer("❌ Ошибка обработки данных заказа", reply_markup=get_main_keyboard())
             return
 
+        # Проверяем обязательные поля
+        required_fields = ['items', 'address', 'district', 'total']
+        for field in required_fields:
+            if field not in data:
+                logger.error(f"Отсутствует обязательное поле: {field}")
+                await message.answer(f"❌ В данных заказа отсутствует {field}", reply_markup=get_main_keyboard())
+                return
+
         # Проверяем наличие товаров
-        items = data.get('items', [])
-        if not items:
+        if not isinstance(data['items'], list) or len(data['items']) == 0:
             logger.warning("Получена пустая корзина")
             await message.answer("❌ Ваша корзина пуста", reply_markup=get_main_keyboard())
             return
 
         # Формируем детали заказа
         order_details = []
-        total = 0.0
-        
-        for item in items:
+        for item in data['items']:
             try:
-                name = item.get('name', 'Без названия')
-                price = float(item['price'])
-                qty = int(item['qty'])
-                flavor = item.get('flavor', 'не указан')
-                
-                item_total = price * qty
-                total += item_total
-                
                 order_details.append(
-                    f"▫️ {name}\n"
-                    f"   - Вкус: {flavor}\n"
-                    f"   - Кол-во: {qty}\n"
-                    f"   - Цена: {item_total:.2f}₽\n"
+                    f"▫️ {item.get('name', 'Без названия')}\n"
+                    f"   - Вкус: {item.get('flavor', 'не указан')}\n"
+                    f"   - Кол-во: {item.get('qty', 1)}\n"
+                    f"   - Цена: {float(item.get('price', 0)) * int(item.get('qty', 1)):.2f}₽\n"
                 )
             except (KeyError, ValueError) as e:
                 logger.error(f"Ошибка обработки товара: {e}")
@@ -114,18 +114,13 @@ async def handle_webapp_data(message: types.Message):
             await message.answer("❌ Некорректные данные товаров", reply_markup=get_main_keyboard())
             return
 
-        # Получаем данные доставки
-        district = data.get('district', 'не указан')
-        address = data.get('address', 'не указан')
-        username = message.from_user.username or f"id{message.from_user.id}"
-
         # Формируем сообщение для клиента
         client_message = (
             "✅ <b>Ваш заказ принят!</b>\n\n"
             f"{''.join(order_details)}\n"
-            f"<b>Итого:</b> {total:.2f}₽\n"
-            f"<b>Район:</b> {district}\n"
-            f"<b>Адрес:</b> {address}\n\n"
+            f"<b>Район:</b> {data['district']}\n"
+            f"<b>Адрес:</b> {data['address']}\n"
+            f"<b>Итого:</b> {float(data['total']):.2f}₽\n\n"
             "📞 Менеджер свяжется с вами для подтверждения."
         )
 
@@ -133,21 +128,26 @@ async def handle_webapp_data(message: types.Message):
         manager_message = (
             "🛒 <b>НОВЫЙ ЗАКАЗ!</b>\n\n"
             f"{''.join(order_details)}\n"
-            f"<b>Сумма:</b> {total:.2f}₽\n"
-            f"<b>Район:</b> {district}\n"
-            f"<b>Адрес:</b> {address}\n\n"
-            f"👤 <b>Клиент:</b> @{username}\n"
-            f"🆔 <b>ID:</b> {message.from_user.id}"
+            f"<b>Район:</b> {data['district']}\n"
+            f"<b>Адрес:</b> {data['address']}\n"
+            f"<b>Итого:</b> {float(data['total']):.2f}₽\n\n"
+            f"👤 <b>Клиент:</b> @{message.from_user.username or 'нет username'}\n"
+            f"🆔 <b>ID:</b> {message.from_user.id}\n"
+            f"📱 <b>Телефон:</b> {data.get('phone', 'не указан')}"
         )
 
         # Отправляем сообщения
         await message.answer(client_message, reply_markup=get_main_keyboard())
-        await bot.send_message(MANAGER_CHAT_ID, manager_message)
+        await bot.send_message(
+            chat_id=MANAGER_CHAT_ID,
+            text=manager_message,
+            parse_mode=ParseMode.HTML
+        )
 
-        logger.info(f"Заказ успешно обработан для пользователя {username}")
+        logger.info(f"Заказ успешно обработан для пользователя {message.from_user.id}")
 
     except Exception as e:
-        logger.error(f"Критическая ошибка: {e}", exc_info=True)
+        logger.error(f"Критическая ошибка: {str(e)}", exc_info=True)
         await message.answer(
             "⚠️ Произошла ошибка при обработке заказа\n"
             "Пожалуйста, попробуйте позже или свяжитесь с менеджером",
@@ -159,5 +159,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    asyncio.run(main()) 
 ```
