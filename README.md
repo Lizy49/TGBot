@@ -1,7 +1,7 @@
 ```python
 import json
 import logging
-import asyncio
+import asyncio 
 from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -10,8 +10,8 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import Command
 from aiogram import F
 
-API_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
-MANAGER_CHAT_ID = -1001234567890  # Замените на ваш ID чата менеджера
+API_TOKEN = '7690796647:AAHibbEzg3ky14fCNpJM2-_G7m4F_kSlqKI'
+MANAGER_CHAT_ID = 6438939468  # Замените на ваш ID чата менеджера
 
 bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
 dp = Dispatcher(storage=MemoryStorage())
@@ -19,8 +19,8 @@ dp = Dispatcher(storage=MemoryStorage())
 def get_main_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🛍️ Оформить заказ", web_app=WebAppInfo(url="https://tlpshop.example.com"))],
-            [KeyboardButton(text="📱 Контакты"), KeyboardButton(text="⏰ Режим работы")]
+            [KeyboardButton(text="🛍️ Оформить заказ", web_app=WebAppInfo(url="https://tlpshop.ru/"))],
+            [KeyboardButton(text="📱 Навигация"), KeyboardButton(text="⏰ Режим работы")]
         ],
         resize_keyboard=True
     )
@@ -37,13 +37,13 @@ async def cmd_start(message: types.Message):
         reply_markup=get_main_keyboard()
     )
 
-@dp.message(F.text == "📱 Контакты")
+@dp.message(F.text == "📱 Навигация")
 async def contacts(message: types.Message):
     await message.answer(
         "📱 *КОНТАКТЫ TLP | SHOP* 📱\n\n"
-        "🔹 Телеграм: @tlpshop\n"
-        "🔹 Менеджер: @tlpmanager\n"
-        "🔹 Техподдержка: @tlpsupport\n\n"
+        "🔹 Менеджер: @tlp_shop\n"
+        "🔹 Важная информация: https://t.me/tlpshopmgdn\n"
+        "🔹 Отзывы: https://t.me/+VfwmutOo8R9hZWMy\n\n"
         "⏳ *Время ответа: до 15 минут*\n"
         "Мы всегда рады помочь вам с выбором!",
         reply_markup=get_main_keyboard()
@@ -53,8 +53,8 @@ async def contacts(message: types.Message):
 async def working_hours(message: types.Message):
     await message.answer(
         "⏰ *РЕЖИМ РАБОТЫ* ⏰\n\n"
-        "▫️ Понедельник - Пятница: 10:00 - 22:00\n"
-        "▫️ Суббота - Воскресенье: 11:00 - 20:00\n\n"
+        "▫️Ежедневно: с 13:00 до 23:00\n\n"
+        "🚚 *Самовывоз уточнять у менеджера*\n"
         "🚚 *Доставка без выходных*\n"
         "Мы работаем для вас каждый день!",
         reply_markup=get_main_keyboard()
