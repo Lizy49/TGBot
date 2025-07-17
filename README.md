@@ -44,7 +44,7 @@ async def cmd_start(message: types.Message):
         reply_markup=get_main_keyboard()
     )
 
-@dp.message(F.text == "📱 Навигация")
+@dp.message(F.text == "📱 Навигация"))
 async def show_contacts(message: types.Message):
     await message.answer(
         "<b>Наши контакты:</b>\n\n"
@@ -55,7 +55,7 @@ async def show_contacts(message: types.Message):
         reply_markup=get_main_keyboard()
     )
 
-@dp.message(F.text == "⏱ Часы работы")
+@dp.message(F.text == "⏱ Часы работы"))
 async def working_hours(message: types.Message):
     await message.answer(
         "<b>График работы</b>\n\n"
@@ -77,23 +77,41 @@ async def handle_webapp_data(message: types.Message):
         try:
             data = json.loads(message.web_app_data.data)
             logger.info(f"Данные заказа: {json.dumps(data, indent=2, ensure_ascii=False)}")
-        except json.JSONDecodeError as e:
+            
+            # Проверяем тип данных
+            if not isinstance(data, dict):
+                raise ValueError("Данные должны быть объектом")
+                
+        except (json.JSONDecodeError, ValueError) as e:
             logger.error(f"Ошибка парсинга JSON: {e}")
-            await message.answer("❌ Ошибка обработки данных заказа", reply_markup=get_main_keyboard())
+            await message.answer("❌ Ошибка обработки данных заказа. Пожалуйста, попробуйте еще раз.", reply_markup=get_main_keyboard())
+            return
+
+        # Проверяем наличие данных
+        if not data:
+            logger.error("Получены пустые данные")
+            await message.answer("❌ Получены пустые данные заказа", reply_markup=get_main_keyboard())
+            return
+
+        # Проверяем тип заказа
+        if data.get('type') != 'new_order':
+            logger.error(f"Неизвестный тип данных: {data.get('type')}")
+            await message.answer("❌ Неизвестный формат заказа", reply_markup=get_main_keyboard())
             return
 
         # Проверяем обязательные поля
         required_fields = ['items', 'address', 'district', 'total']
-        for field in required_fields:
-            if field not in data:
-                logger.error(f"Отсутствует обязательное поле: {field}")
-                await message.answer(f"❌ В данных заказа отсутствует {field}", reply_markup=get_main_keyboard())
-                return
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            logger.error(f"Отсутствуют обязательные поля: {missing_fields}")
+            await message.answer(f"❌ В данных заказа отсутствуют: {', '.join(missing_fields)}", reply_markup=get_main_keyboard())
+            return
 
         # Проверяем наличие товаров
         if not isinstance(data['items'], list) or len(data['items']) == 0:
             logger.warning("Получена пустая корзина")
-            await message.answer("❌ Ваша корзина пуста", reply_markup=get_main_keyboard())
+            await message.answer("❌ Ваша корзина пуста. Добавьте товары перед оформлением заказа.", reply_markup=get_main_keyboard())
             return
 
         # Формируем детали заказа
@@ -133,7 +151,8 @@ async def handle_webapp_data(message: types.Message):
             f"<b>Итого:</b> {float(data['total']):.2f}₽\n\n"
             f"👤 <b>Клиент:</b> @{message.from_user.username or 'нет username'}\n"
             f"🆔 <b>ID:</b> {message.from_user.id}\n"
-            f"📱 <b>Телефон:</b> {data.get('phone', 'не указан')}"
+            f"📱 <b>Телефон:</b> {data.get('phone', 'не указан')}\n"
+            f"🌐 <b>Версия WebApp:</b> {data.get('webapp_version', 'неизвестно')}"
         )
 
         # Отправляем сообщения
@@ -159,5 +178,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    asyncio.run(main()) 
 ```
