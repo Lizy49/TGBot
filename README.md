@@ -123,6 +123,7 @@ async def handle_webapp_data(message: types.Message):
                     f"   - Вкус: {item.get('flavor', 'не указан')}\n"
                     f"   - Кол-во: {item.get('qty', 1)}\n"
                     f"   - Цена: {float(item.get('price', 0)) * int(item.get('qty', 1)):.2f}₽\n"
+                    f"   - Описание: {item.get('description', 'нет описания')}\n"
                 )
             except (KeyError, ValueError) as e:
                 logger.error(f"Ошибка обработки товара: {e}")
@@ -178,5 +179,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    asyncio.run(main()) 
+    asyncio.run(main())
 ```
